@@ -17,24 +17,24 @@ __all__ = ['SWAPClient']
 
 class SWAPClient(GenericClient):
     """
-    Returns a list of URLS to Proba2 SWAP files corresponding to value of input timerange.
-    URL source: `http://proba2.oma.be/swap/data/`.
-
+    Returns a list of URLS to PROBA2 SWAP [1] files corresponding to value of
+    input timerange. URL source: `http://proba2.oma.be/swap/data/`.
 
     Parameters
     ----------
-    timerange: sunpy.time.TimeRange
-        time range for which data is to be downloaded.
+    timerange : `sunpy.time.TimeRange`
+        Time range for which data is to be downloaded.
         Example value - TimeRange('2015-12-30 00:00:00','2015-12-31 00:01:00')
 
-    Instrument: Fixed argument = 'swap'
+    Instrument : Fixed argument with value 'swap'
 
-    Level: Level can take only 0,1 or 'q'/'Q' as arguments.
+    Level : 0, 1, 'q' or 'Q' as arguments.
+        Data processing level as described by SWAP - see reference [2].
 
     Returns
     -------
-    urls: list
-    list of urls corresponding to requested time range.
+    urls : list
+        list of urls corresponding to requested time range.
 
     Examples
     --------
@@ -51,11 +51,18 @@ class SWAPClient(GenericClient):
     2015-12-29 00:00:00 2015-12-30 00:00:00 Proba2       swap]
 
     >>> response = Fido.fetch(results)
+
+    References
+    ----------
+    [1] http://proba2.sidc.be/about/SWAP
+    [2] http://proba2.sidc.be/data/SWAP
+
     """
 
     def _get_url_for_timerange(self, timerange, **kwargs):
         """
-        returns list of urls corresponding to given TimeRange.
+        Returns list of urls corresponding to given TimeRange.  The level
+        dependent start dates are taken from the SWAP website.
         """
         level = kwargs.get('level', 1)
         if level == 1 or level == 0:
@@ -81,11 +88,11 @@ class SWAPClient(GenericClient):
         """
         Helper Function:used to hold information about source.
         """
-        self.map_['source'] = 'Proba2'
-        self.map_['instrument'] = 'swap'
+        self.map_['source'] = 'PROBA2'
+        self.map_['instrument'] = 'SWAP'
         self.map_['phyobs'] = 'irradiance'
-        self.map_['provider'] = 'esa'
-        self.map_['wavelength'] = '174 AA'
+        self.map_['provider'] = 'ESA'
+        self.map_['wavelength'] = '174 Angstrom'
 
     @classmethod
     def _can_handle_query(cls, *query):
@@ -98,10 +105,9 @@ class SWAPClient(GenericClient):
 
         Returns
         -------
-        boolean: answer as to whether client can service the query
+        boolean : answer as to whether client can service the query
 
         """
-        chkattr = ['Time', 'Instrument', 'Level']
         chk_var = 0
         for x in query:
             if x.__class__.__name__ == 'Instrument' and type(x.value) is str and x.value.lower() == 'swap':
