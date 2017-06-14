@@ -1,16 +1,11 @@
-"""
-This module implements SWAPClient
-"""
-# This module was developed with funding provided by
+# This module implements SWAPClient and was developed with funding provided by
 # the Google Summer of Code 2016.
-
-__author__ = "Sudarshan Konge"
-__email__ = "sudk1896@gmail.com"
 
 import datetime
 
 from sunpy.net.dataretriever.client import GenericClient
 from sunpy.util.scraper import Scraper
+
 
 __all__ = ['SWAPClient']
 
@@ -61,16 +56,16 @@ class SWAPClient(GenericClient):
 
     def _get_url_for_timerange(self, timerange, **kwargs):
         """
-        Returns list of urls corresponding to given TimeRange.  The level
+        Returns list of URLs corresponding to given TimeRange.  The level
         dependent start dates are taken from the SWAP website.
         """
         level = kwargs.get('level', 1)
         if level == 1 or level == 0:
-            SWAP_STARTDATE = datetime.datetime(2009, 11, 24)
+            swap_start_date = datetime.datetime(2009, 11, 24)
         else:
-            SWAP_STARTDATE = datetime.datetime(2010, 1, 4)
-        if timerange.start < SWAP_STARTDATE:
-            raise ValueError('Earliest date for which SWAP data is available is {:%Y-%m-%d}'.format(SWAP_STARTDATE))
+            swap_start_date = datetime.datetime(2010, 1, 4)
+        if timerange.start < swap_start_date:
+            raise ValueError('Earliest date for which SWAP data is available is {:%Y-%m-%d}'.format(swap_start_date))
         datatype = {0: 'eng', 1: 'bsd', 'q': 'qlk', 'Q': 'qlk'}
         prefix = 'http://proba2.oma.be/swap/data/{datatype}/%Y/%m/%d/'
         if level == 0 or level == 1:
