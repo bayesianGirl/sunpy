@@ -221,6 +221,9 @@ class DatabaseEntry(Base):
         This is the same value as ``wavemin``. The value is stored twice,
         because each ``suds.sudsobject.QueryResponseBlock`` which is used by
         the vso package contains both these values.
+    hdu_index : int
+        This value provides a list of all available HDUs and in what
+        files they are located.
     path : string
         A local file path where the according FITS file is saved.
     download_time : datetime
@@ -477,8 +480,6 @@ def entries_from_file(file, default_waveunit=None,
     Examples
     --------
     >>> from sunpy.database.tables import entries_from_file
-    >>> import sunpy.data
-    >>> sunpy.data.download_sample_data(overwrite=False)   # doctest: +SKIP
     >>> import sunpy.data.sample
     >>> entries = list(entries_from_file(sunpy.data.sample.SWAP_LEVEL1_IMAGE))
     >>> len(entries)

@@ -1,12 +1,7 @@
-# Extra dependencies required for development and tests
+# Optional dependencies for extra functionality
 
 -r base.txt
 
-# Pytest and the optional pytest coverage plugin for tests
-pytest
-pytest-cov
-
-# Optional dependencies for extra functionality
 sqlalchemy
 scikit-image
 glymur
