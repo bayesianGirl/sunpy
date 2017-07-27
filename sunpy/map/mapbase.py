@@ -231,7 +231,7 @@ Reference Pixel:\t {refpix}
 Reference Coord:\t {refcoord}
 
 """.format(obs=self.observatory, inst=self.instrument, det=self.detector,
-           meas=self.measurement, wave=self.wavelength, date=self.date,
+           meas=self.measurement, wave=self.wavelength, date=self.obstime,
            dt=self.exposure_time,
            dim=u.Quantity(self.dimensions),
            scale=u.Quantity(self.scale),
@@ -271,7 +271,7 @@ Reference Coord:\t {refcoord}
         w2.wcs.ctype = self.coordinate_system
         w2.wcs.pc = self.rotation_matrix
         w2.wcs.cunit = self.spatial_units
-        w2.wcs.dateobs = self.date.isoformat()
+        w2.wcs.dateeobs = self.obstime.isoformat()
         w2.heliographic_observer = self.observer_coordinate
         w2.rsun = self.rsun_meters
 
@@ -375,7 +375,7 @@ Reference Coord:\t {refcoord}
     def _base_name(self):
         """Abstract the shared bit between name and latex_name"""
         return "{nickname} {{measurement}} {date:{tmf}}".format(nickname=self.nickname,
-                                                                date=parse_time(self.date),
+                                                                date=parse_time(self.obstime),
                                                                 tmf=TIME_FORMAT)
 
     @property
@@ -402,7 +402,7 @@ Reference Coord:\t {refcoord}
         self._nickname = n
 
     @property
-    def date(self):
+    def obstime(self):
         """Image observation time"""
         time = parse_time(self.meta.get('date-obs', 'now'))
         if time is None:
@@ -427,7 +427,7 @@ Reference Coord:\t {refcoord}
                                    " separation: assuming Sun-Earth distance",
                                    Warning, __file__,
                                    inspect.currentframe().f_back.f_lineno)
-            dsun = sun.sunearth_distance(self.date).to(u.m)
+            dsun = sun.sunearth_distance(self.obstime).to(u.m)
 
         return u.Quantity(dsun, 'm')
 
@@ -559,7 +559,7 @@ Reference Coord:\t {refcoord}
                                    " assuming photospheric limb as seen from Earth",
                                    Warning, __file__,
                                    inspect.currentframe().f_back.f_lineno)
-            rsun_arcseconds = sun.solar_semidiameter_angular_size(self.date).to('arcsec').value
+            rsun_arcseconds = sun.solar_semidiameter_angular_size(self.obstime).to('arcsec').value
 
         return u.Quantity(rsun_arcseconds, 'arcsec')
 
@@ -579,7 +579,7 @@ Reference Coord:\t {refcoord}
                                    " assuming Earth-based observer",
                                    Warning, __file__,
                                    inspect.currentframe().f_back.f_lineno)
-            carrington_longitude = (sun.heliographic_solar_center(self.date))[0]
+            carrington_longitude = (sun.heliographic_solar_center(self.obstime))[0]
 
         if isinstance(carrington_longitude, six.string_types):
             carrington_longitude = float(carrington_longitude)
@@ -598,7 +598,7 @@ Reference Coord:\t {refcoord}
                                    " assuming Earth-based observer",
                                    Warning, __file__,
                                    inspect.currentframe().f_back.f_lineno)
-            heliographic_latitude = (sun.heliographic_solar_center(self.date))[1]
+            heliographic_latitude = (sun.heliographic_solar_center(self.obstime))[1]
 
         if isinstance(heliographic_latitude, six.string_types):
             heliographic_latitude = float(heliographic_latitude)
