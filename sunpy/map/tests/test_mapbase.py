@@ -25,6 +25,8 @@ import sunpy.map
 import sunpy.coordinates
 import sunpy.data.test
 from sunpy.time import parse_time
+from sunpy.tests.helpers import save_test
+
 
 from sunpy.extern import six
 
@@ -653,3 +655,9 @@ def test_more_than_two_dimensions():
     # Test fails if map.ndim > 2 and if the dimensions of the array are wrong.
     assert bad_map.ndim is 2
     assert_quantity_allclose(bad_map.dimensions, (5, 3) * u.pix)
+
+
+# Test the map save
+@save_test
+def test_map_save():
+    pass

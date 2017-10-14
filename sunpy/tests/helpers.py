@@ -94,3 +94,34 @@ def figure_test(test_function):
             assert hash.hash_library[name] == figure_hash
         plt.close()
     return wrapper
+
+
+def save_test(test_function):
+    """
+    A decorator for a test that verifies the hash of the current figure or the returned figure,
+    with the name of the test function as the hash identifier in the library.
+    A PNG is also created with a temporary filename, with the lookup stored in the
+    `figure_test_pngfiles` dictionary.
+
+    All such decorated tests are marked with `pytest.mark.figure` for convenient filtering.
+
+    Examples
+    --------
+    @figure_test
+    def test_simple_plot():
+        plt.plot([0,1])
+    """
+    @pytest.mark.figure
+    @wraps(test_function)
+    def wrapper(*args, **kwargs):
+        name = "{0}.{1}".format(test_function.__module__, test_function.__name__)
+        savefile = tempfile.NamedTemporaryFile(delete=False)
+        figure_hash = hash.hash_figure(test_function(*args, **kwargs), out_stream=savefile)
+        figure_test_pngfiles[name] = savefile.name
+        savefile.close()
+        new_hash_library[name] = figure_hash
+        if name not in hash.hash_library:
+            pytest.fail("Hash not present: {0}".format(name))
+        else:
+            assert hash.hash_library[name] == figure_hash
+    return wrapper
