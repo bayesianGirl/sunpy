@@ -4,6 +4,8 @@ Author: `Keith Hughitt <keith.hughitt@nasa.gov>`
 """
 from __future__ import absolute_import, print_function, division
 
+import numpy as np
+
 import matplotlib.pyplot as plt
 
 import astropy.units as u
@@ -81,17 +83,23 @@ class CompositeMap(object):
                            'CompositeMap expects pre-constructed map objects.')
 
         # Default alpha and zorder values
-        alphas = [1] * len(self._maps)
-        zorders = list(range(0, 10 * len(self._maps), 10))
-        levels = [False] * len(self._maps)
+        n_map = len(self._maps)
+        alphas = np.ones(n_map)
+        zorders = list(range(0, 10 * n_map, 10))
+        levels = [False] * n_map
+        plot_types = ['imshow'] * n_map
 
         # Set z-order and alpha values for the map
         for i, m in enumerate(self._maps):
             m.zorder = zorders[i]
             m.alpha = alphas[i]
             m.levels = levels[i]
+            m.plot_type = plot_types[i]
 
-    def add_map(self, amap, zorder=None, alpha=1, levels=False):
+        # Allowed plot types
+        self._allowed_plot_types = ('imshow', 'contour', 'contourf')
+
+    def add_map(self, amap, zorder=None, alpha=1, levels=False, plot_type='imshow'):
         """Adds a map to the CompositeMap.
 
         Parameters
@@ -114,6 +122,7 @@ class CompositeMap(object):
         amap.zorder = zorder
         amap.alpha = alpha
         amap.levels = levels
+        amap.plot_type = plot_type
 
         self._maps.append(amap)
 
@@ -190,6 +199,25 @@ class CompositeMap(object):
             return [_map.plot_settings for _map in self._maps]
         else:
             return self._maps[index].plot_settings
+
+    def get_plot_type(self, index=None):
+        """Returns the plot type for a layer in the composite image.
+
+        Parameters
+        ----------
+        index : {`int` | None}
+            The index of the map in the composite map.
+
+        Returns
+        -------
+        `list`
+            The plot types of the map(s) in the composite map.  If None
+            then the plot types of all the maps are returned in a list.
+        """
+        if index is None:
+            return [_map.plot_type for _map in self._maps]
+        else:
+            return self._maps[index].plot_type
 
     def get_zorder(self, index=None):
         """Returns the layering preference (z-order) for a map within the
@@ -280,6 +308,25 @@ class CompositeMap(object):
             'index'.
         """
         self._maps[index].plot_settings = plot_settings
+
+    def set_plot_type(self, index, plot_type):
+        """Sets the plot type for a layer in the composite image.
+
+        Parameters
+        ----------
+        index : `int`
+            The index of the map in the composite map.
+
+        plot_type : 'imshow | 'contour' | 'contourf'
+            Type of plot
+
+        Returns
+        -------
+        `~sunpy.map.CompositeMap`
+            A composite map with plot type 'plot_type' at layer
+            'index'.
+        """
+        self._maps[index].plot_type[index] = plot_type
 
     def set_zorder(self, index, zorder):
         """Set the layering order (z-order) for a map within the
@@ -430,6 +477,18 @@ class CompositeMap(object):
                 "zorder": m.zorder,
             }
             params.update(matplot_args)
+
+            if m.plot_type not in self._allowed_plot_types:
+                raise ValueError("Plot type must be one of {:s}.".format(self._allowed_plot_types))
+
+            if m.plot_type == 'imshow':
+                pass
+
+            if m.plot_type == 'contour':
+                pass
+
+            if m.plot_type == 'contourf':
+                pass
 
             if m.levels is False:
                 ret.append(axes.imshow(m.data, **params))
